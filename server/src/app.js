@@ -17,8 +17,10 @@ app.use(express.urlencoded({extended:true, limit:"16kb"}))
 app.use(cookieParser())
 
 import userRoute from "./routes/user.routes.js"
+import noteRoute from "./routes/note.routes.js"
 
 app.use("/api/v1/users", userRoute)
+app.use("/api/v1/notes",noteRoute)
 
 
 export {app}

@@ -16,6 +16,9 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
 
     await user.save();
 
+    console.log("accesstoken: ", accessToken);
+    console.log("refreshtoken: ", refreshToken);
+    
     return { accessToken, refreshToken };
   } catch (error) {
     console.error("Token generation Error", error);
@@ -65,14 +68,14 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const {  email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if ( email.trim() === "" || password.trim() === "") {
     throw new ApiError(400, "username or password is required");
   }
 
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [ { email }],
   });
 
   if (!user) {
@@ -85,7 +88,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  const { accessToken, refreshToken } = generateAccessTokenAndRefreshToken(
+  const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(
     user._id
   );
 console.log("---------------------",accessToken);
@@ -122,3 +125,9 @@ console.log("---------------------",refreshToken);
       )
     );
 });
+
+export const logoutUser = asyncHandler(async(req,res)=>{
+  res.clearCookie("accessToken")
+  res.clearCookie("refreshToken")
+  return res.status(200).json(new ApiResponse(200, null, "User logged out successfully"))
+})
